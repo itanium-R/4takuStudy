@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style><!--
+    
+      @import url(http://fonts.googleapis.com/earlyaccess/notosansjp.css);
+
+      input[type="button"]{
+        display    : inline-block;
+        height     : 3em;
+        width      : 20em;  max-width   : 90vw;
+        padding    : 3px;   max-padding : 2vw;
+        margin     : 3px;   max-margin  : 2vw;
+        background : ivory;
+        color      : #000;
+        border     : 0.1em solid #000;
+        border-radius: 0.5em;
+      }
+      input[type="button"]:active{
+      }
+      font.correct{
+        color:red;
+      }
+      font.incorrect{
+        color:blue;
+      }
+      body{
+        margin:0;padding:0;
+        font-weight: bold; font-size:1.2em;
+        font-family: 'Noto Sans JP';
+      }
+      div,section{
+        margin:auto;
+        width:24em;
+        max-width:99vw;
+        text-align:center;
+      }
+      hr{
+        margin:auto;
+        width:24em;
+        max-width:99vw;
+      }
+      div.qInfo{
+        font-size : 0.5em;
+      }
+    --></style>
+    <script>
+      const DEFAULT_COLOR = "ivory";
+      const INCORRE_COLOR = "#f8b862";
+      const CORRECT_COLOR = "#a0d8ef";
+      const DISABLE_COLOR = "#CCC";
+      var curA;
+      var curQNum;
+      var isAbleToAns  = false;
+      var isAbleToNext = false;
+      var nextQAList;
+      var qCnt;           // 同じ問題が続かないように処理用
+      var usedQList = []; // 同じ問題が続かないように処理用
+      var mode=0;
+      
+      window.onload = function onload(){
+        hidePlaySec();
+      }
+      
+      function hardQuestion(){
+        mode=0;
+        hideStartSec();
+        showPlaySec();
+        initialize();
+      }
+      function randomQuestion(){
+        mode=1;
+        hideStartSec();
+        showPlaySec();
+        initialize();
+      }
+      
+      function initialize(){
+        
+        document.getElementById("questionDiv").innerHTML = "";
+        document.getElementById("b1").value = "loading";
+        document.getElementById("b2").value = "loading";
+        document.getElementById("b3").value = "loading";
+        document.getElementById("b4").value = "loading";
+        
+        var loadQCnt,loadQAList;
+        google.script.run.withSuccessHandler(loadQCnt).sendToHTML_qCnt();
+        function loadQCnt(data){
+          qCnt = data;
+        }
+        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question([],mode);
+        function loadQAList(data){
+          nextQAList = data;
+          readQuestion();
+        }
+      }
+      
+      // 問題を読み込む
+      function readQuestion(){
+        hideNextButton();    // Nextボタンを封じる
+        disableNext();
+        
+        // nextQAListにbufされた情報を表示
+        document.getElementById("questionDiv").innerHTML = nextQAList[0];
+        var indexList = shuffleindexList(4);
+        document.getElementById("b1").value = nextQAList[indexList[0]+1];
+        document.getElementById("b2").value = nextQAList[indexList[1]+1];
+        document.getElementById("b3").value = nextQAList[indexList[2]+1];
+        document.getElementById("b4").value = nextQAList[indexList[3]+1];
+        document.getElementById("questionCnt").innerHTML = nextQAList[6];
+        document.getElementById("correctCnt" ).innerHTML = nextQAList[7];
+        document.getElementById("correctRate").innerHTML = (nextQAList[8]*100).toFixed(1);
+        curA    = nextQAList[1]; // 今の問題の答えを記憶
+        curQNum = nextQAList[5]; // 今の問題番号　を記憶
+        document.getElementById("result").innerHTML="";
+        showAnsButton();
+        isAbleToAns=true;
+        colorAnsButton(DEFAULT_COLOR);
+        // 同じ問題が連続で出ないようにusedAListで出題済み問題を管理
+        if(usedQList.length+1>qCnt)usedQList=[]; //usedQListがたまったら1つずつ解くと順番が固定されるため一括全開放
+        usedQList.push(curQNum-0);
+        
+        // read next question -> nextQAList
+        var loadQAList;
+        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question(usedQList,mode);
+        function loadQAList(data){
+          nextQAList = data;
+          enableNext() // nextQAListが読み込めてからNextをAvalableに
+        }
+        
+      }
+      
+      
+      // shuffleされた添え字が入る1次行列を返す函数
+      function shuffleindexList(num){
+        var indexList=[];
+        for(var i=0;i<num;i++)indexList[i]=i;
+        for(var i=0;i<num;i++){
+          for(var j=0;j<num;j++){
+            if(Math.random()<0.5){
+              let tmp = indexList[i];
+              indexList[i]=indexList[j];
+              indexList[j]=tmp;
+            }
+          }
+        }
+        return indexList;
+      }
+      
+      // 回答選択肢ボタンが押された時の正誤確認
+      function checkAns(obj){
+        if(isAbleToAns==false)return false;
+        var objVal = obj.value;
+        //hideAnsButton();
+        colorAnsButton(DISABLE_COLOR);
+        colorCorrectButton(CORRECT_COLOR);
+        if(objVal==curA){
+          // 正解
+          google.script.run.withSuccessHandler().addCorrect(curQNum);
+          document.getElementById("result").innerHTML="<font class='correct'>正解！</font>";
+        }else{
+          // 不正解
+          google.script.run.withSuccessHandler().addIncorrect(curQNum);
+          document.getElementById("result").innerHTML="<font class='incorrect'>不正解...</font>";
+          obj.style.backgroundColor=INCORRE_COLOR;
+        }
+        isAbleToAns=false;
+        
+
+        
+        showNextButton();
+
+        
+      }
+      
+      // 正解ボタンのみarg:color色に着色
+      function colorCorrectButton(color){
+      for(let i=1;i<=4;i++)
+          if(document.getElementById("b"+i).value==curA)
+             document.getElementById("b"+i).style.backgroundColor=color;
+      }
+      
+      // すべてのボタンをarg:color色に着色
+      function colorAnsButton(color){
+        for(let i=1;i<=4;i++)
+          document.getElementById("b"+i).style.backgroundColor=color;
+      }
+      
+      function hideAnsButton() {document.getElementById("ansButton" ).style.display="none";}  
+      function showAnsButton() {document.getElementById("ansButton" ).style.display="block";} 
+      function hideNextButton(){document.getElementById("nextButton").style.display="none";}  
+      function showNextButton(){document.getElementById("nextButton").style.display="block";} 
+      function hidePlaySec()   {document.getElementById("playSec"   ).style.display="none";}  
+      function showPlaySec()   {document.getElementById("playSec"   ).style.display="block";} 
+      function hideStartSec()   {document.getElementById("startSec"   ).style.display="none";}  
+      function showStartSec()   {document.getElementById("startSec"   ).style.display="block";} 
+      function disableNext(){
+        isAbleToNext = false;
+        let nextButton = document.getElementById("nextB");
+        nextButton.style.backgroundColor=DISABLE_COLOR;
+        nextButton.value="loading...";
+      }
+      function enableNext(){
+        isAbleToNext = true;
+        let nextButton = document.getElementById("nextB");
+        nextButton.style.backgroundColor=DEFAULT_COLOR;
+        nextButton.value="Next";
+      }
+
+    </script>
+  </head>
+  
+
+  <body>
+    
+    <div id="navi">出題くん</div>
+    <hr>
+    <section id="startSec">
+      <input type="button" id="randB" value="ランダム出題" onclick="randomQuestion();">
+      <input type="button" id="hardB" value="難問優先出題" onclick="hardQuestion();">
+    </section>
+    <section id="playSec">
+      <div class="qInfo">
+        出題回数：<span id="questionCnt">00</span>回　
+        正答：<span id="correctCnt">00</span>回　
+        正答率：<span id="correctRate">00.0</span>％
+      </div> 
+      <hr />
+      <div style="height:7em;" id="questionDiv"></div>
+      <hr />
+      
+      <div id="ansButton">
+        <input type="button" id="b1" value="" onclick="checkAns(this)"><br>
+        <input type="button" id="b2" value="" onclick="checkAns(this)"><br>
+        <input type="button" id="b3" value="" onclick="checkAns(this)"><br>
+        <input type="button" id="b4" value="" onclick="checkAns(this)">
+      </div>
+      <hr>
+      <div id="result"  style="height:1.5em;"></div>
+      <hr>
+      
+      <div id="nextButton">
+        <input type="button" id="nextB" value="Next" onclick="if(isAbleToNext)readQuestion();">
+      </div>
+    </section>
+   
+  </body>
+</html>
