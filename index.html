@@ -53,7 +53,6 @@
       var curA;
       var curQNum;
       var isAbleToAns  = false;
-      var isAbleToNext = false;
       var nextQAList;
       var qCnt;           // 同じ問題が続かないように処理用
       var usedQList = []; // 同じ問題が続かないように処理用
@@ -151,6 +150,8 @@
       // 回答選択肢ボタンが押された時の正誤確認
       function checkAns(obj){
         if(isAbleToAns==false)return false;
+        isAbleToAns=false;
+        
         var objVal = obj.value;
         //hideAnsButton();
         colorAnsButton(DISABLE_COLOR);
@@ -165,13 +166,9 @@
           document.getElementById("result").innerHTML="<font class='incorrect'>不正解...</font>";
           obj.style.backgroundColor=INCORRE_COLOR;
         }
-        isAbleToAns=false;
-        
-
         
         showNextButton();
 
-        
       }
       
       // 正解ボタンのみarg:color色に着色
@@ -193,17 +190,17 @@
       function showNextButton(){document.getElementById("nextButton").style.display="block";} 
       function hidePlaySec()   {document.getElementById("playSec"   ).style.display="none";}  
       function showPlaySec()   {document.getElementById("playSec"   ).style.display="block";} 
-      function hideStartSec()   {document.getElementById("startSec"   ).style.display="none";}  
-      function showStartSec()   {document.getElementById("startSec"   ).style.display="block";} 
+      function hideStartSec()  {document.getElementById("startSec"   ).style.display="none";}  
+      function showStartSec()  {document.getElementById("startSec"   ).style.display="block";} 
       function disableNext(){
-        isAbleToNext = false;
         let nextButton = document.getElementById("nextB");
+        nextButton.disabled = true;
         nextButton.style.backgroundColor=DISABLE_COLOR;
         nextButton.value="loading...";
       }
       function enableNext(){
-        isAbleToNext = true;
         let nextButton = document.getElementById("nextB");
+        nextButton.disabled = false;
         nextButton.style.backgroundColor=DEFAULT_COLOR;
         nextButton.value="Next";
       }
@@ -241,7 +238,7 @@
       <hr>
       
       <div id="nextButton">
-        <input type="button" id="nextB" value="Next" onclick="if(isAbleToNext)readQuestion();">
+        <input type="button" id="nextB" value="Next" onclick="readQuestion();">
       </div>
     </section>
    
