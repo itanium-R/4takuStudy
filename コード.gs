@@ -116,6 +116,20 @@ function addIncorrect(qNum){
   incorrectRange.setValue(incorrectRange.getValue()+1);
 }
 
+
+function loadQuizList(){
+  const ss =SpreadsheetApp.getActiveSpreadsheet();
+  const sheetCnt = ss.getNumSheets();
+  var sheet;
+  var quizList=[];
+  for(var i=0;i<sheetCnt;i++){
+    sheet = ss.getSheets()[i];
+    quizList.push(ss.getSheets()[i].getName());
+  }
+  Logger.log(quizList);
+  return quizList;
+}
+
 //------------------------------------------------------------
 //アクティブスプレッドシートのnameシートを開く函数
 function nameOpen(name){
