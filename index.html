@@ -57,6 +57,7 @@
       var qCnt;           // 同じ問題が続かないように処理用
       var usedQList = []; // 同じ問題が続かないように処理用
       var mode=0;
+      var quizSht = "question2";
       
       window.onload = function onload(){
         hidePlaySec();
@@ -84,11 +85,11 @@
         document.getElementById("b4").value = "loading";
         
         var loadQCnt,loadQAList;
-        google.script.run.withSuccessHandler(loadQCnt).sendToHTML_qCnt();
+        google.script.run.withSuccessHandler(loadQCnt).sendToHTML_qCnt(quizSht);
         function loadQCnt(data){
           qCnt = data;
         }
-        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question([],mode);
+        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question(quizSht,[],mode);
         function loadQAList(data){
           nextQAList = data;
           readQuestion();
@@ -122,7 +123,7 @@
         
         // read next question -> nextQAList
         var loadQAList;
-        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question(usedQList,mode);
+        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question(quizSht,usedQList,mode);
         function loadQAList(data){
           nextQAList = data;
           enableNext() // nextQAListが読み込めてからNextをAvalableに
@@ -158,11 +159,11 @@
         colorCorrectButton(CORRECT_COLOR);
         if(objVal==curA){
           // 正解
-          google.script.run.withSuccessHandler().addCorrect(curQNum);
+          google.script.run.withSuccessHandler().addCorrect(quizSht,curQNum);
           document.getElementById("result").innerHTML="<font class='correct'>正解！</font>";
         }else{
           // 不正解
-          google.script.run.withSuccessHandler().addIncorrect(curQNum);
+          google.script.run.withSuccessHandler().addIncorrect(quizSht,curQNum);
           document.getElementById("result").innerHTML="<font class='incorrect'>不正解...</font>";
           obj.style.backgroundColor=INCORRE_COLOR;
         }

@@ -6,14 +6,13 @@ function doGet() {
 }
 
 function showSidebar() {
-  const qS = nameOpen("question");
   
   var htmlOutput = HtmlService.createHtmlOutputFromFile('index');
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 }
 
 function writeFormula(){
-  var qS     = nameOpen("question");
+  var qS     = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();//アクティブシート
   var rowNum = qS.getLastRow()-2;
   qS.getRange(3,4,rowNum,1).setFormula('=iferror(indirect("E"&row())+indirect("F"&row()),0)');
   var correctList =qS.getRange(3,5,rowNum,2).getValues();
@@ -26,21 +25,21 @@ function writeFormula(){
 }
 
 
-function sendToHTML_qCnt(){
-  var qS = nameOpen("question");
+function sendToHTML_qCnt(quizSht){
+  var qS = nameOpen(quizSht);
   return qS.getRange("J2").getValue();
 }
 
-function sendToHTML_question(usedIndexList,mode){
+function sendToHTML_question(quizSht,usedIndexList,mode){
   var QAList=[];
   if(!usedIndexList)usedIndexList=[];
-  var qS = nameOpen("question");
+  var qS = nameOpen(quizSht);
   var dataCnt = qS.getRange("J2").getValue();
   var qNum;
   var Q;
   
   if(mode==1)qNum = randInt(dataCnt,usedIndexList);
-  else       qNum = minQNum(dataCnt,usedIndexList);
+  else       qNum = minQNum(quizSht,dataCnt,usedIndexList);
   Q=qS.getRange(qNum+2,2,1,6).getValues();
   
   QAList[0]=Q[0][0];   // Q
@@ -80,8 +79,8 @@ function randInt(i,reject){
 
 // 1以上i以下の問題番号の中からrejectに存在しない問題で正答率の一番低いものの問題番号を返す
 // 1以上i以下の全整数がrejectされる場合は1を返す（rejectの各要素はかぶらないものとする）
-function minQNum(i,reject){
-  var qS = nameOpen("question");
+function minQNum(quizSht,i,reject){
+  var qS = nameOpen(quizSht);
   var correctRateList = qS.getRange(3,7,i,1).getValues();
   var flg;
   var min=3,minIndex;
@@ -101,17 +100,17 @@ function minQNum(i,reject){
 function test01(){
   //for(var i=0;i<10;i++)Logger.log(randInt(3,[1,2]));
   //addIncorrect(2);
-  Logger.log(minQNum(13,[1,2]));
+  
 }
 
-function addCorrect(qNum){
-  var qS = nameOpen("question");
+function addCorrect(quizSht,qNum){
+  var qS = nameOpen(quizSht);
   var correctRange = qS.getRange(qNum+2,5);
   correctRange.setValue(correctRange.getValue()+1);
 }
 
-function addIncorrect(qNum){
-  var qS = nameOpen("question");
+function addIncorrect(quizSht,qNum){
+  var qS = nameOpen(quizSht);
   var incorrectRange = qS.getRange(qNum+2,6);
   incorrectRange.setValue(incorrectRange.getValue()+1);
 }
