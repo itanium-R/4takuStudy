@@ -129,6 +129,19 @@ function loadQuizList(){
   return quizList;
 }
 
+function loadQuizSelectorHtml(){
+  var quizList = loadQuizList();
+  var quizSelectorHtml = "";
+  //<input type="button" id="b1" value="" onclick="checkAns(this)"><br>
+  for(var i=quizList.length-1;i>=0;i--){
+    quizSelectorHtml += '<input type="button" value="'
+    quizSelectorHtml += quizList[i];
+    quizSelectorHtml += '" onclick="setQuizSht(this.value)"><br>';
+  }
+  Logger.log(quizSelectorHtml);
+  return quizSelectorHtml;
+}
+
 //------------------------------------------------------------
 //アクティブスプレッドシートのnameシートを開く函数
 function nameOpen(name){

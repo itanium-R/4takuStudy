@@ -57,11 +57,43 @@
       var qCnt;           // 同じ問題が続かないように処理用
       var usedQList = []; // 同じ問題が続かないように処理用
       var mode=0;
-      var quizSht = "question2";
+      var quizSht;
       
-      window.onload = function onload(){
-        hidePlaySec();
+      window.onload = function(){
+        goTop();
       }
+      
+      function goTop(){
+        hideStartSec();
+        hidePlaySec();
+        
+        curA="";
+        curQNum=0;
+        isAbleToAns  = false;
+        nextQAList = [];
+        qCnt=0;         // 同じ問題が続かないように処理用
+        usedQList = []; // 同じ問題が続かないように処理用
+        mode=0;
+        quizSht="";
+        
+        document.getElementById("quizSelectSec").innerHTML="loading...";
+        showQSelectSec();
+        loadQuizSelector();
+      }
+      
+      function loadQuizSelector(){
+        google.script.run.withSuccessHandler(qSelector).loadQuizSelectorHtml();
+        function qSelector(gotHtml){
+          document.getElementById("quizSelectSec").innerHTML=gotHtml;
+        }
+      }
+      
+      function setQuizSht(clickedVal){
+        quizSht=clickedVal;
+        showStartSec();
+        hideQSelectSec();
+      }
+      
       
       function hardQuestion(){
         mode=0;
@@ -185,14 +217,17 @@
           document.getElementById("b"+i).style.backgroundColor=color;
       }
       
+      function showSlctButton(){document.getElementById("ansButton" ).style.display="block";} 
       function hideAnsButton() {document.getElementById("ansButton" ).style.display="none";}  
       function showAnsButton() {document.getElementById("ansButton" ).style.display="block";} 
       function hideNextButton(){document.getElementById("nextButton").style.display="none";}  
       function showNextButton(){document.getElementById("nextButton").style.display="block";} 
       function hidePlaySec()   {document.getElementById("playSec"   ).style.display="none";}  
       function showPlaySec()   {document.getElementById("playSec"   ).style.display="block";} 
-      function hideStartSec()  {document.getElementById("startSec"   ).style.display="none";}  
-      function showStartSec()  {document.getElementById("startSec"   ).style.display="block";} 
+      function hideStartSec()  {document.getElementById("startSec"  ).style.display="none";}  
+      function showStartSec()  {document.getElementById("startSec"  ).style.display="block";} 
+      function hideQSelectSec(){document.getElementById("quizSelectSec").style.display="none";}  
+      function showQSelectSec(){document.getElementById("quizSelectSec").style.display="block";}  
       function disableNext(){
         let nextButton = document.getElementById("nextB");
         nextButton.disabled = true;
@@ -212,8 +247,11 @@
 
   <body>
     
-    <div id="navi">出題くん</div>
+    <div id="navi" onclick="goTop()">出題くん</div>
     <hr>
+    <section id="quizSelectSec">
+      loading...
+    </section>
     <section id="startSec">
       <input type="button" id="randB" value="ランダム出題" onclick="randomQuestion();">
       <input type="button" id="hardB" value="難問優先出題" onclick="hardQuestion();">
