@@ -1,6 +1,6 @@
 function doGet() {
   return HtmlService.createTemplateFromFile("index").evaluate()
-    .setTitle('賞味期限管理')
+    .setTitle('出題くん')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }

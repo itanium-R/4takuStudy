@@ -42,6 +42,7 @@
         max-width:99vw;
       }
       div.qInfo{
+        width:24em;
         font-size : 0.5em;
       }
     --></style>
@@ -120,6 +121,7 @@
         google.script.run.withSuccessHandler(loadQCnt).sendToHTML_qCnt(quizSht);
         function loadQCnt(data){
           qCnt = data;
+          document.getElementById("totalQCnt").innerHTML = qCnt;
         }
         google.script.run.withSuccessHandler(loadQAList).sendToHTML_question(quizSht,[],mode);
         function loadQAList(data){
@@ -128,10 +130,16 @@
         }
       }
       
+      function addCurQCnt(){
+        let curQCnt =document.getElementById("curQCnt");
+        curQCnt.innerHTML=(curQCnt.innerHTML-0+1);
+      }
       // 問題を読み込む
       function readQuestion(){
         hideNextButton();    // Nextボタンを封じる
         disableNext();
+        
+        addCurQCnt();
         
         // nextQAListにbufされた情報を表示
         document.getElementById("questionDiv").innerHTML = nextQAList[0];
@@ -260,7 +268,9 @@
       <div class="qInfo">
         出題回数：<span id="questionCnt">00</span>回　
         正答：<span id="correctCnt">00</span>回　
-        正答率：<span id="correctRate">00.0</span>％
+        正答率：<span id="correctRate">00.0</span>％　
+        <span id="curQCnt">0</span>問目　
+        (全<span id="totalQCnt">0</span>問)
       </div> 
       <hr />
       <div style="height:7em;" id="questionDiv"></div>
