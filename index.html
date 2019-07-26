@@ -32,17 +32,16 @@
       }
       div,section{
         margin:auto;
-        width:24em;
-        max-width:99vw;
+        width:24rem;
+        max-width:99%;
         text-align:center;
       }
       hr{
         margin:auto;
-        width:24em;
-        max-width:99vw;
+        width:24rem;
+        max-width:94vw;
       }
       div.qInfo{
-        width:24em;
         font-size : 0.5em;
       }
     --></style>
@@ -76,6 +75,7 @@
         usedQList = []; // 同じ問題が続かないように処理用
         mode=0;
         quizSht="";
+        document.getElementById("curQCnt").innerHTML=0;
         
         document.getElementById("quizSelectSec").innerHTML="loading...";
         showQSelectSec();
@@ -273,7 +273,7 @@
         (全<span id="totalQCnt">0</span>問)
       </div> 
       <hr />
-      <div style="height:7em;" id="questionDiv"></div>
+      <div style="min-height:7.5em;" id="questionDiv"></div>
       <hr />
       
       <div id="ansButton">
