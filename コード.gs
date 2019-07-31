@@ -1,5 +1,10 @@
-function doGet() {
-  return HtmlService.createTemplateFromFile("index").evaluate()
+function doGet(e) {
+  var quiz = e.parameter["quiz"];
+
+  output = HtmlService.createTemplateFromFile("index");
+  output.quiz=quiz;
+  
+  return output.evaluate()
     .setTitle('出題くん')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);

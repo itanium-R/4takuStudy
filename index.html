@@ -16,6 +16,7 @@
         color      : #000;
         border     : 0.1em solid #000;
         border-radius: 0.5em;
+        font-family: 'Noto Sans JP';
       }
       input[type="button"]:active{
       }
@@ -61,6 +62,15 @@
       
       window.onload = function(){
         goTop();
+        let quiz = <?= quiz ?>;
+        if(quiz&&quiz!="undefined"){
+          setQuizSht(quiz);
+        }
+      }
+      
+      function gasFailure(){
+        alert("実行に失敗しました．時間をおいて再実行してください．");
+        goTop();
       }
       
       function goTop(){
@@ -83,7 +93,8 @@
       }
       
       function loadQuizSelector(){
-        google.script.run.withSuccessHandler(qSelector).loadQuizSelectorHtml();
+        google.script.run.withSuccessHandler(qSelector)
+                         .withFailureHandler(gasFailure).loadQuizSelectorHtml();
         function qSelector(gotHtml){
           document.getElementById("quizSelectSec").innerHTML=gotHtml;
         }
@@ -91,6 +102,7 @@
       
       function setQuizSht(clickedVal){
         quizSht=clickedVal;
+        document.getElementById("quizName").innerHTML = clickedVal;
         showStartSec();
         hideQSelectSec();
       }
@@ -123,7 +135,8 @@
           qCnt = data;
           document.getElementById("totalQCnt").innerHTML = qCnt;
         }
-        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question(quizSht,[],mode);
+        google.script.run.withSuccessHandler(loadQAList)
+                         .withFailureHandler(gasFailure).sendToHTML_question(quizSht,[],mode);
         function loadQAList(data){
           nextQAList = data;
           readQuestion();
@@ -163,7 +176,8 @@
         
         // read next question -> nextQAList
         var loadQAList;
-        google.script.run.withSuccessHandler(loadQAList).sendToHTML_question(quizSht,usedQList,mode);
+        google.script.run.withSuccessHandler(loadQAList)
+                         .withFailureHandler(gasFailure).sendToHTML_question(quizSht,usedQList,mode);
         function loadQAList(data){
           nextQAList = data;
           enableNext() // nextQAListが読み込めてからNextをAvalableに
@@ -199,11 +213,13 @@
         colorCorrectButton(CORRECT_COLOR);
         if(objVal==curA){
           // 正解
-          google.script.run.withSuccessHandler().addCorrect(quizSht,curQNum);
+          google.script.run.withSuccessHandler()
+                           .withFailureHandler(gasFailure).addCorrect(quizSht,curQNum);
           document.getElementById("result").innerHTML="<font class='correct'>正解！</font>";
         }else{
           // 不正解
-          google.script.run.withSuccessHandler().addIncorrect(quizSht,curQNum);
+          google.script.run.withSuccessHandler()
+                           .withFailureHandler(gasFailure).addIncorrect(quizSht,curQNum);
           document.getElementById("result").innerHTML="<font class='incorrect'>不正解...</font>";
           obj.style.backgroundColor=INCORRE_COLOR;
         }
@@ -261,8 +277,11 @@
       loading...
     </section>
     <section id="startSec">
+      Quiz:<span id="quizName"></span><br>
       <input type="button" id="randB" value="ランダム出題" onclick="randomQuestion();">
       <input type="button" id="hardB" value="難問優先出題" onclick="hardQuestion();">
+      <hr>
+      <input type="button" value="戻る" onclick="goTop();">
     </section>
     <section id="playSec">
       <div class="qInfo">
