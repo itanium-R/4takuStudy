@@ -1,7 +1,7 @@
 function doGet(e) {
   var quiz = e.parameter["quiz"];
 
-  output = HtmlService.createTemplateFromFile("index");
+  var output = HtmlService.createTemplateFromFile("index");
   output.quiz=quiz;
   
   return output.evaluate()
@@ -12,8 +12,11 @@ function doGet(e) {
 
 function showSidebar() {
   
-  var htmlOutput = HtmlService.createHtmlOutputFromFile('index');
-  SpreadsheetApp.getUi().showSidebar(htmlOutput);
+  var output = HtmlService.createTemplateFromFile("index");
+  output.quiz=undefined;
+  
+  output = output.evaluate();
+  SpreadsheetApp.getUi().showSidebar(output);
 }
 
 function writeFormula(){
